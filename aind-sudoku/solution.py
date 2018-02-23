@@ -1,6 +1,6 @@
 
 from utils import *
-
+import collections
 
 row_units = [cross(r, cols) for r in rows]
 column_units = [cross(rows, c) for c in cols]
@@ -15,34 +15,21 @@ peers = extract_peers(units, boxes)
 
 
 def naked_twins(values):
-    """Eliminate values using the naked twins strategy.
+    for u in unitlist:
+        val = [values[p] for p in u]
+        uni = set(val)
 
-    Parameters
-    ----------
-    values(dict)
-        a dictionary of the form {'box_name': '123456789', ...}
+        num = collections.defaultdict(int)  
+        for item in val:
+            num[item] += 1
 
-    Returns
-    -------
-    dict
-        The values dictionary with the naked twins eliminated from peers
-
-    Notes
-    -----
-    Your solution can either process all pairs of naked twins from the input once,
-    or it can continue processing pairs of naked twins until there are no such
-    pairs remaining -- the project assistant test suite will accept either
-    convention. However, it will not accept code that does not process all pairs
-    of naked twins from the original input. (For example, if you start processing
-    pairs of twins and eliminate another pair of twins before the second pair
-    is processed then your code will fail the PA test suite.)
-
-    The first convention is preferred for consistency with the other strategies,
-    and because it is simpler (since the reduce_puzzle function already calls this
-    strategy repeatedly).
-    """
-    # TODO: Implement this function!
-    raise NotImplementedError
+        for key in num:
+            if len(key)==2 and num[key]==2:
+                for p in u:
+                    if not values[p]==key:
+                        values[p] = values[p].replace(key[0], '')
+                        values[p] = values[p].replace(key[1], '')
+    return values
 
 
 def eliminate(values, new_assign):
@@ -50,6 +37,7 @@ def eliminate(values, new_assign):
         v = values[key]
         for p in peers[key]:
             values[p] = values[p].replace(v,'')
+    naked_twins(values)
 
 
 def only_choice(values, tocheck):
@@ -67,24 +55,10 @@ def only_choice(values, tocheck):
                     values[key] = v
                     new_assign.append(key)
                     tocheck.remove(key)
-
     return new_assign, tocheck
 
 
 def reduce_puzzle(values, new_assign, tocheck):
-    """Reduce a Sudoku puzzle by repeatedly applying all constraint strategies
-
-    Parameters
-    ----------
-    values(dict)
-        a dictionary of the form {'box_name': '123456789', ...}
-
-    Returns
-    -------
-    dict or False
-        The values dictionary after continued application of the constraint strategies
-        no longer produces any changes, or False if the puzzle is unsolvable 
-    """
     stalled = False
     eliminate(values, new_assign)
     while not stalled:
@@ -121,48 +95,14 @@ def recur_search(values, new_assign, tocheck):
 
 
 def search(values):
-    """Apply depth first search to solve Sudoku puzzles in order to solve puzzles
-    that cannot be solved by repeated reduction alone.
-
-    Parameters
-    ----------
-    values(dict)
-        a dictionary of the form {'box_name': '123456789', ...}
-
-    Returns
-    -------
-    dict or False
-        The values dictionary with all boxes assigned or False
-
-    Notes
-    -----
-    You should be able to complete this function by copying your code from the classroom
-    and extending it to call the naked twins strategy.
-    """
     new_assign = [box for box in values.keys() if len(values[box]) == 1]
     tocheck = [box for box in values.keys() if len(values[box]) > 1]
     reduce_puzzle(values, new_assign, tocheck)
-
-    return values
-#    sol, valid = recur_search(values, new_assign, tocheck)
-#    return sol
+    sol, valid = recur_search(values, new_assign, tocheck)
+    return sol
 
 
 def solve(grid):
-    """Find the solution to a Sudoku puzzle using search and constraint propagation
-
-    Parameters
-    ----------
-    grid(string)
-        a string representing a sudoku grid.
-        
-        Ex. '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
-
-    Returns
-    -------
-    dict or False
-        The dictionary representation of the final sudoku grid or False if no solution exists.
-    """
     values = grid2values(grid)
     values = search(values)
     return values
@@ -173,7 +113,7 @@ if __name__ == "__main__":
     display(grid2values(diag_sudoku_grid))
     result = solve(diag_sudoku_grid)
     display(result)
-"""
+
     try:
         import PySudoku
         PySudoku.play(grid2values(diag_sudoku_grid), result, history)
@@ -182,4 +122,3 @@ if __name__ == "__main__":
         pass
     except:
         print('We could not visualize your board due to a pygame issue. Not a problem! It is not a requirement.')
-"""
