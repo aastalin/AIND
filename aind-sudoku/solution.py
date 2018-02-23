@@ -49,7 +49,7 @@ def eliminate(values, new_assign):
     for key in new_assign:
         v = values[key]
         for p in peers[key]:
-            values[p] = values[p].replace(key,'')
+            values[p] = values[p].replace(v,'')
 
 
 def only_choice(values, tocheck):
@@ -59,13 +59,15 @@ def only_choice(values, tocheck):
         for p in units[key]:
             val.append(''.join([values[i] for i in p if not i==key]))
 
+        assign = False
         for v in values[key]:
             for p in val:
-                if p.find(v)<0:
+                if p.find(v)<0 and not assign:
+                    assign = True
                     values[key] = v
                     new_assign.append(key)
                     tocheck.remove(key)
-                    return new_assign, tocheck
+
     return new_assign, tocheck
 
 
