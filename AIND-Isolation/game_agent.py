@@ -170,50 +170,44 @@ class MinimaxPlayer(IsolationPlayer):
         # Return the best move from the last completed search iteration
         return best_move
 
+    def min_value(gameState, depth):
+        if terminal_test(gameState): return 1
+        if depth == 0: return 0
+
+        v = float("inf")
+        for m in gameState.get_legal_moves():
+            v = min(v, max_value(gameState.forecast_move(m), depth))
+        return v
+
+    def max_value(gameState, depth):
+        if terminal_test(gameState): return -1    
+        if depth == 0: return 0
+    
+        v = float("-inf")
+        for m in gameState.get_legal_moves():
+            v = max(v, min_value(gameState.forecast_move(m), depth))
+        return v
+
+    call_counter = 0
+    def terminal_test(gameState):
+        global call_counter
+        call_counter += 1
+        moves_available = bool(gameState.get_legal_moves())  # by Assumption 1
+        return not moves_available
+
     def minimax(self, game, depth):
-        """Implement depth-limited minimax search algorithm as described in
-        the lectures.
-
-        This should be a modified version of MINIMAX-DECISION in the AIMA text.
-        https://github.com/aimacode/aima-pseudocode/blob/master/md/Minimax-Decision.md
-
-        **********************************************************************
-            You MAY add additional methods to this class, or define helper
-                 functions to implement the required functionality.
-        **********************************************************************
-
-        Parameters
-        ----------
-        game : isolation.Board
-            An instance of the Isolation game `Board` class representing the
-            current game state
-
-        depth : int
-            Depth is an integer representing the maximum number of plies to
-            search in the game tree before aborting
-
-        Returns
-        -------
-        (int, int)
-            The board coordinates of the best move found in the current search;
-            (-1, -1) if there are no legal moves
-
-        Notes
-        -----
-            (1) You MUST use the `self.score()` method for board evaluation
-                to pass the project tests; you cannot call any other evaluation
-                function directly.
-
-            (2) If you use any helper functions (e.g., as shown in the AIMA
-                pseudocode) then you must copy the timer check into the top of
-                each helper function or else your agent will timeout during
-                testing.
-        """
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        # TODO: finish this function!
-        raise NotImplementedError
+        best_move = (-1, -1)
+        best_score = float("-inf")
+
+        for m in gameState.get_legal_moves():
+            v = min_value(gameState.forecast_move(m), depth - 1)
+            if v > best_score:
+                best_score = v
+                best_move = m
+        return best_move
 
 
 class AlphaBetaPlayer(IsolationPlayer):
