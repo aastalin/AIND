@@ -6,7 +6,6 @@ import random
 
 
 class SearchTimeout(Exception):
-    """Subclass base exception for code clarity. """
     pass
 
 
@@ -34,8 +33,7 @@ def custom_score(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    # TODO: finish this function!
-    raise NotImplementedError
+    return len(game.get_legal_moves())
 
 
 def custom_score_2(game, player):
@@ -170,30 +168,37 @@ class MinimaxPlayer(IsolationPlayer):
         # Return the best move from the last completed search iteration
         return best_move
 
-    def min_value(gameState, depth):
-        if terminal_test(gameState): return 1
-        if depth == 0: return 0
+    def terminal_test(self, game):
+        moves_available = bool(game.get_legal_moves())
+        return not moves_available
+
+    def min_value(self, game, depth):
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+        if depth == 0:
+            return self.score(game, game.active_player)
+        if self.terminal_test(game):
+            return +1
+#            return self.score(game, game.active_player)
 
         v = float("inf")
-        for m in gameState.get_legal_moves():
-            v = min(v, max_value(gameState.forecast_move(m), depth))
+        for m in game.get_legal_moves():
+            v = min(v, self.max_value(game.forecast_move(m), depth-1))
         return v
 
-    def max_value(gameState, depth):
-        if terminal_test(gameState): return -1    
-        if depth == 0: return 0
+    def max_value(self, game, depth):
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+        if depth == 0:
+            return self.score(game, game.active_player)
+        if self.terminal_test(game):
+            return -1
+#            return self.score(game, game.active_player)
     
         v = float("-inf")
-        for m in gameState.get_legal_moves():
-            v = max(v, min_value(gameState.forecast_move(m), depth))
+        for m in game.get_legal_moves():
+            v = max(v, self.min_value(game.forecast_move(m), depth-1))
         return v
-
-    call_counter = 0
-    def terminal_test(gameState):
-        global call_counter
-        call_counter += 1
-        moves_available = bool(gameState.get_legal_moves())  # by Assumption 1
-        return not moves_available
 
     def minimax(self, game, depth):
         if self.time_left() < self.TIMER_THRESHOLD:
@@ -202,8 +207,8 @@ class MinimaxPlayer(IsolationPlayer):
         best_move = (-1, -1)
         best_score = float("-inf")
 
-        for m in gameState.get_legal_moves():
-            v = min_value(gameState.forecast_move(m), depth - 1)
+        for m in game.get_legal_moves():
+            v = self.min_value(game.forecast_move(m), depth-1)
             if v > best_score:
                 best_score = v
                 best_move = m
