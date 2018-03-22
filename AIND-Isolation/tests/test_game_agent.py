@@ -4,7 +4,7 @@ cases used by the project assistant are not public.
 """
 
 import unittest
-
+import timeit
 import isolation
 import game_agent
 
@@ -25,20 +25,28 @@ class IsolationTest(unittest.TestCase):
     def test_MinimaxPlayer(self):
         self.player1 = MinimaxPlayer()
         self.player2 = MinimaxPlayer()
+
+        time_millis = lambda: 1000 * timeit.default_timer()
+        move_start = time_millis()
+        time_left = lambda : 150 - (time_millis() - move_start)
+        self.player1.time_left = time_left
+        self.player2.time_left = time_left
+
         self.game = isolation.Board(self.player1, self.player2)
 
         assert(len(self.game.get_legal_moves())==49)
 
         self.game.apply_move((3,3))
-        self.game.apply_move((0,4))
-        assert(self.player1 == self.game.active_player)
-
-        winner, history, outcome = self.game.play()
-        win_str = 'player1' if winner==self.player1 else 'player2'
-        print("\nWinner: {}\nOutcome: {}".format(win_str, outcome))
-        print(self.game.to_string())
-        print("Move history:\n{!s}".format(history))
-
+        while True:
+            # player2
+            best_move = self.player1.minimax(self.game, 3)
+            if best_move == (-1, -1): break
+            self.game.apply_move(best_move)
+            # player1
+            best_move = self.player2.minimax(self.game, 3)
+            if best_move == (-1, -1): break
+            self.game.apply_move(best_move)
+        assert(len(self.game.get_legal_moves())==0)
 
 
 if __name__ == '__main__':
