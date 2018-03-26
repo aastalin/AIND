@@ -9,7 +9,7 @@ class SearchTimeout(Exception):
     pass
 
 def custom_score(game, player):
-    return len(game.get_legal_moves())
+    return len(game.get_legal_moves(player))
 
 
 def custom_score_2(game, player):
@@ -40,10 +40,6 @@ class MinimaxPlayer(IsolationPlayer):
             pass
         return best_move
 
-    def terminal_test(self, game):
-        moves_available = bool(game.get_legal_moves())
-        return not moves_available
-
     def min_value(self, game, depth):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
@@ -51,7 +47,7 @@ class MinimaxPlayer(IsolationPlayer):
             return self.score(game, game.active_player)
 
         v = float("inf")
-        for m in game.get_legal_moves():
+        for m in game.get_legal_moves(game.active_player):
             v = min(v, self.max_value(game.forecast_move(m), depth-1))
         return v
 
@@ -62,7 +58,7 @@ class MinimaxPlayer(IsolationPlayer):
             return self.score(game, game.active_player)
     
         v = float("-inf")
-        for m in game.get_legal_moves():
+        for m in game.get_legal_moves(game.active_player):
             v = max(v, self.min_value(game.forecast_move(m), depth-1))
         return v
 
@@ -73,11 +69,17 @@ class MinimaxPlayer(IsolationPlayer):
         best_move = (-1, -1)
         best_score = float("-inf")
 
-        for m in game.get_legal_moves():
+        moves = game.hash()
+        print(game.get_legal_moves(game.active_player))
+        print(moves)
+        for idx in range(len(moves)):
+            m = moves[idx]
             v = self.min_value(game.forecast_move(m), depth-1)
+            print(str(m)+'   v='+str(v))
             if v >= best_score:
                 best_score = v
                 best_move = m
+        print('best_move='+str(best_move)+'   v='+str(best_score))
         return best_move
 
 
@@ -93,8 +95,6 @@ class AlphaBetaPlayer(IsolationPlayer):
                 best_move = self.alphabeta(game, depth)
                 depth += 1
         except SearchTimeout:
-            pass
-        except Terminal:
             pass
         return best_move
 
