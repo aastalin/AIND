@@ -9,15 +9,15 @@ class SearchTimeout(Exception):
     pass
 
 def custom_score(game, player):
-    return len(game.get_legal_moves(player))
+    return float(len(game.get_legal_moves(player)))
 
 
 def custom_score_2(game, player):
-    return len(game.get_legal_moves())
+    return float(len(game.get_legal_moves()))
 
 
 def custom_score_3(game, player):
-    return len(game.get_legal_moves())
+    return float(len(game.get_legal_moves()))
 
 
 class IsolationPlayer:
@@ -47,7 +47,7 @@ class MinimaxPlayer(IsolationPlayer):
         v = float("inf")
         for m in game.get_legal_moves():
             if depth == 0:
-                v = self.score(game, game.active_player)
+                v = min(v, self.score(game, self))
             else:
                 v = min(v, self.max_value(game.forecast_move(m), depth-1))
         return v
@@ -59,7 +59,7 @@ class MinimaxPlayer(IsolationPlayer):
         v = float("-inf")
         for m in game.get_legal_moves():
             if depth == 0:
-                v = self.score(game, game.active_player)
+                v = max(v, self.score(game, self))
             else:
                 v = max(v, self.min_value(game.forecast_move(m), depth-1))
         return v
@@ -100,7 +100,7 @@ class AlphaBetaPlayer(IsolationPlayer):
         v = float("inf")
         for m in game.get_legal_moves():
             if depth == 0:
-                v = self.score(game, game.active_player)
+                v = min(v, self.score(game, self))
             else:
                 v = min(v, self.max_value(game.forecast_move(m), depth-1, alpha, beta))
             if v<= alpha: return v
@@ -114,7 +114,7 @@ class AlphaBetaPlayer(IsolationPlayer):
         v = float("-inf")
         for m in game.get_legal_moves():
             if depth == 0:
-                v = self.score(game, game.active_player)
+                v = max(v, self.score(game, self))
             else:
                 v = max(v, self.min_value(game.forecast_move(m), depth-1, alpha, beta))
             if v>= beta: return v
