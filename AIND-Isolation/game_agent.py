@@ -47,19 +47,21 @@ class MinimaxPlayer(IsolationPlayer):
             return self.score(game, game.active_player)
 
         v = float("inf")
-        for m in game.get_legal_moves(game.active_player):
-            v = min(v, self.max_value(game.forecast_move(m), depth-1))
+        for m in game.get_legal_moves():
+            game_copy = game.copy()
+            v = min(v, self.max_value(game_copy.forecast_move(m), depth-1))
         return v
 
     def max_value(self, game, depth):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
         if depth == 0:
-            return self.score(game, game.active_player)
+            return abs(self.score(game, game.active_player))
     
         v = float("-inf")
-        for m in game.get_legal_moves(game.active_player):
-            v = max(v, self.min_value(game.forecast_move(m), depth-1))
+        for m in game.get_legal_moves():
+            game_copy = game.copy()
+            v = max(v, self.min_value(game_copy.forecast_move(m), depth-1))
         return v
 
     def minimax(self, game, depth):
@@ -68,18 +70,12 @@ class MinimaxPlayer(IsolationPlayer):
 
         best_move = (-1, -1)
         best_score = float("-inf")
-
-        moves = game.hash()
-        print(game.get_legal_moves(game.active_player))
-        print(moves)
-        for idx in range(len(moves)):
-            m = moves[idx]
-            v = self.min_value(game.forecast_move(m), depth-1)
-            print(str(m)+'   v='+str(v))
+        for m in game.get_legal_moves():
+            game_copy = game.copy()
+            v = self.min_value(game_copy.forecast_move(m), depth-1)
             if v >= best_score:
                 best_score = v
                 best_move = m
-        print('best_move='+str(best_move)+'   v='+str(best_score))
         return best_move
 
 
