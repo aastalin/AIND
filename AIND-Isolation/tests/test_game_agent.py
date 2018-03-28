@@ -7,11 +7,12 @@ import unittest
 import timeit
 import isolation
 import game_agent
-import sample_players as pl
+import sample_players as strategy
 
 from importlib import reload
 from game_agent import IsolationPlayer
 from game_agent import MinimaxPlayer
+from game_agent import AlphaBetaPlayer
 
 
 class IsolationTest(unittest.TestCase):
@@ -23,6 +24,24 @@ class IsolationTest(unittest.TestCase):
         self.player2 = "Player2"
         self.game = isolation.Board(self.player1, self.player2)
 
+    def test_AlphaBetaFailCase1(self):
+        self.player1 = AlphaBetaPlayer()
+        self.player2 = AlphaBetaPlayer()
+
+        time_millis = lambda: 1000 * timeit.default_timer()
+        move_start = time_millis()
+        time_left = lambda : 150 - (time_millis() - move_start)
+        self.player1.time_left = time_left
+        self.player2.time_left = time_left
+
+        self.player1.score = strategy.improved_score
+        self.player2.score = strategy.improved_score
+
+        self.game = isolation.Board(self.player1, self.player2, 9, 9)
+        self.game._board_state = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 60, 14]
+
+        best_move = self.player1.alphabeta(self.game, 1, 0, 0)
+
     def test_MinimaxFailCase1(self):
         self.player1 = MinimaxPlayer()
         self.player2 = MinimaxPlayer()
@@ -33,14 +52,13 @@ class IsolationTest(unittest.TestCase):
         self.player1.time_left = time_left
         self.player2.time_left = time_left
 
-        self.player1.score = pl.center_score
-        self.player2.score = pl.center_score
+        self.player1.score = strategy.center_score
+        self.player2.score = strategy.center_score
 
         self.game = isolation.Board(self.player1, self.player2, 9, 9)
         self.game._board_state = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 39, 56]
         best_move = self.player1.minimax(self.game, 1)
         assert(best_move==(0,7))
-
 """
     def test_MinimaxPlayer(self):
         self.player1 = MinimaxPlayer()
@@ -68,7 +86,6 @@ class IsolationTest(unittest.TestCase):
             self.game.apply_move(best_move)
         assert(len(self.game.get_legal_moves())==0)
 """
-
 
 if __name__ == '__main__':
     unittest.main()
