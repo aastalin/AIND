@@ -3,21 +3,52 @@ test your agent's strength against a set of known agents using tournament.py
 and include the results in your report.
 """
 import random
-
+import math
 
 class SearchTimeout(Exception):
     pass
 
+def get_future_moves(game, player):
+    directions = [(-2, -1), (-2, 1), (-1, -2), (-1, 2),
+                  (1, -2), (1, 2), (2, -1), (2, 1)]
+
+    next_moves = []
+    for loc in game.get_legal_moves(player):
+        r, c = loc
+        moves = [(r + dr, c + dc) for dr, dc in directions
+                if game.move_is_legal((r + dr, c + dc))]
+        for m in moves: next_moves.append(m)
+    random.shuffle(next_moves)
+    return next_moves
+
 def custom_score(game, player):
-    return float(len(game.get_legal_moves(player)))
+    my_score = len(get_future_moves(game, player))
+    op_score = len(get_future_moves(game, game.get_opponent(player)))
+    return float(my_score - op_score)
 
 
 def custom_score_2(game, player):
-    return float(len(game.get_legal_moves()))
+    my_moves = get_future_moves(game, player)
+    op_moves = get_future_moves(game, game.get_opponent(player))
+
+    ct0 = math.ceil(game.width /2)-1
+    ct1 = math.ceil(game.height/2)-1
+
+    good_my_moves = [m for m in my_moves if not game.move_is_legal((2*ct0-m[0], 2*ct1-m[1]))]
+    good_op_moves = [m for m in op_moves if not game.move_is_legal((2*ct0-m[0], 2*ct1-m[1]))]
+    return float(len(my_moves)-len(op_moves))
 
 
 def custom_score_3(game, player):
-    return float(len(game.get_legal_moves()))
+    my_moves = game.get_legal_moves(player)
+    op_moves = game.get_legal_moves(game.get_opponent(player))
+ 
+    ct0 = math.ceil(game.width /2)-1
+    ct1 = math.ceil(game.height/2)-1
+
+    good_my_moves = [m for m in my_moves if not game.move_is_legal((2*ct0-m[0], 2*ct1-m[1]))]
+    good_op_moves = [m for m in op_moves if not game.move_is_legal((2*ct0-m[0], 2*ct1-m[1]))]
+    return float(-len(op_moves))
 
 
 class IsolationPlayer:
