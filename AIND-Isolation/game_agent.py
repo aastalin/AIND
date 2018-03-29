@@ -36,7 +36,7 @@ def custom_score_2(game, player):
 
     good_my_moves = [m for m in my_moves if not game.move_is_legal((2*ct0-m[0], 2*ct1-m[1]))]
     good_op_moves = [m for m in op_moves if not game.move_is_legal((2*ct0-m[0], 2*ct1-m[1]))]
-    return float(len(my_moves)-len(op_moves))
+    return float(len(good_my_moves)-len(good_op_moves))
 
 
 def custom_score_3(game, player):
@@ -48,7 +48,7 @@ def custom_score_3(game, player):
 
     good_my_moves = [m for m in my_moves if not game.move_is_legal((2*ct0-m[0], 2*ct1-m[1]))]
     good_op_moves = [m for m in op_moves if not game.move_is_legal((2*ct0-m[0], 2*ct1-m[1]))]
-    return float(-len(op_moves))
+    return float(len(my_moves)+len(good_my_moves)-len(good_op_moves))
 
 
 class IsolationPlayer:
