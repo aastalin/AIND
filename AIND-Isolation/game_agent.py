@@ -21,9 +21,10 @@ def get_future_moves(game, player):
     random.shuffle(next_moves)
     return next_moves
 
+
 def custom_score(game, player):
-    my_moves = game.get_legal_moves(player)
-    op_moves = game.get_legal_moves(game.get_opponent(player))
+    my_moves = get_future_moves(game, player)
+    op_moves = get_future_moves(game, game.get_opponent(player))
 
     ct0 = math.ceil(game.width /2)-1
     ct1 = math.ceil(game.height/2)-1
@@ -34,8 +35,8 @@ def custom_score(game, player):
 
 
 def custom_score_2(game, player):
-    my_moves = get_future_moves(game, player)
-    op_moves = get_future_moves(game, game.get_opponent(player))
+    my_moves = game.get_legal_moves(player)
+    op_moves = game.get_legal_moves(game.get_opponent(player))
 
     ct0 = math.ceil(game.width /2)-1
     ct1 = math.ceil(game.height/2)-1
