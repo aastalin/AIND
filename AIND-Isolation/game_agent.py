@@ -22,9 +22,15 @@ def get_future_moves(game, player):
     return next_moves
 
 def custom_score(game, player):
-    my_score = len(get_future_moves(game, player))
-    op_score = len(get_future_moves(game, game.get_opponent(player)))
-    return float(my_score - op_score)
+    my_moves = game.get_legal_moves(player)
+    op_moves = game.get_legal_moves(game.get_opponent(player))
+
+    ct0 = math.ceil(game.width /2)-1
+    ct1 = math.ceil(game.height/2)-1
+
+    good_my_moves = [m for m in my_moves if not game.move_is_legal((2*ct0-m[0], 2*ct1-m[1]))]
+    good_op_moves = [m for m in op_moves if not game.move_is_legal((2*ct0-m[0], 2*ct1-m[1]))]
+    return float(len(good_my_moves)+len(my_moves)-len(good_op_moves)-len(op_moves))
 
 
 def custom_score_2(game, player):
@@ -36,19 +42,13 @@ def custom_score_2(game, player):
 
     good_my_moves = [m for m in my_moves if not game.move_is_legal((2*ct0-m[0], 2*ct1-m[1]))]
     good_op_moves = [m for m in op_moves if not game.move_is_legal((2*ct0-m[0], 2*ct1-m[1]))]
-    return float(len(good_my_moves)-len(good_op_moves))
+    return float(len(good_my_moves)+len(my_moves)-len(good_op_moves)-len(op_moves))
 
 
 def custom_score_3(game, player):
-    my_moves = game.get_legal_moves(player)
-    op_moves = game.get_legal_moves(game.get_opponent(player))
- 
-    ct0 = math.ceil(game.width /2)-1
-    ct1 = math.ceil(game.height/2)-1
-
-    good_my_moves = [m for m in my_moves if not game.move_is_legal((2*ct0-m[0], 2*ct1-m[1]))]
-    good_op_moves = [m for m in op_moves if not game.move_is_legal((2*ct0-m[0], 2*ct1-m[1]))]
-    return float(len(my_moves)+len(good_my_moves)-len(good_op_moves))
+    my_score = len(get_future_moves(game, player))
+    op_score = len(get_future_moves(game, game.get_opponent(player)))
+    return float(my_score - op_score)
 
 
 class IsolationPlayer:
