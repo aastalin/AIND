@@ -23,33 +23,32 @@ def get_future_moves(game, player):
 
 
 def custom_score(game, player):
-    my_moves = get_future_moves(game, player)
-    op_moves = get_future_moves(game, game.get_opponent(player))
+    my_moves = min(4, len(game.get_legal_moves(player)))
+    op_moves = min(4, len(game.get_legal_moves(game.get_opponent(player))))
 
-    ct0 = math.ceil(game.width /2)-1
-    ct1 = math.ceil(game.height/2)-1
-
-    good_my_moves = [m for m in my_moves if not game.move_is_legal((2*ct0-m[0], 2*ct1-m[1]))]
-    good_op_moves = [m for m in op_moves if not game.move_is_legal((2*ct0-m[0], 2*ct1-m[1]))]
-    return float(len(good_my_moves)+len(my_moves)-len(good_op_moves)-len(op_moves))
+    gamma = 8 / max(game.width, game.height) / 2
+    my_pos = game.get_player_location(player)
+    op_pos = game.get_player_location(game.get_opponent(player))
+    distance = math.sqrt((my_pos[0]-op_pos[0])**2+(my_pos[1]-op_pos[1])**2)
+    return float(max(my_moves,gamma*distance) - op_moves)
 
 
 def custom_score_2(game, player):
-    my_moves = game.get_legal_moves(player)
-    op_moves = game.get_legal_moves(game.get_opponent(player))
+    my_moves = min(4, len(game.get_legal_moves(player)))
+    op_moves = min(4, len(game.get_legal_moves(game.get_opponent(player))))
 
-    ct0 = math.ceil(game.width /2)-1
-    ct1 = math.ceil(game.height/2)-1
-
-    good_my_moves = [m for m in my_moves if not game.move_is_legal((2*ct0-m[0], 2*ct1-m[1]))]
-    good_op_moves = [m for m in op_moves if not game.move_is_legal((2*ct0-m[0], 2*ct1-m[1]))]
-    return float(len(good_my_moves)+len(my_moves)-len(good_op_moves)-len(op_moves))
+    my_pos = game.get_player_location(player)
+    op_pos = game.get_player_location(game.get_opponent(player))
+    distance = math.sqrt((my_pos[0]-op_pos[0])**2+(my_pos[1]-op_pos[1])**2)
+    if distance >=3: bonus = 3
+    else: bonus = 0
+    return float(my_moves - op_moves + bonus)
 
 
 def custom_score_3(game, player):
-    my_score = len(get_future_moves(game, player))
-    op_score = len(get_future_moves(game, game.get_opponent(player)))
-    return float(my_score - op_score)
+    my_moves = min(4, len(game.get_legal_moves(player)))
+    op_moves = min(4, len(game.get_legal_moves(game.get_opponent(player))))
+    return float(my_moves - op_moves)
 
 
 class IsolationPlayer:
