@@ -8,19 +8,6 @@ import math
 class SearchTimeout(Exception):
     pass
 
-def get_future_moves(game, player):
-    directions = [(-2, -1), (-2, 1), (-1, -2), (-1, 2),
-                  (1, -2), (1, 2), (2, -1), (2, 1)]
-
-    next_moves = []
-    for loc in game.get_legal_moves(player):
-        r, c = loc
-        moves = [(r + dr, c + dc) for dr, dc in directions
-                if game.move_is_legal((r + dr, c + dc))]
-        for m in moves: next_moves.append(m)
-    random.shuffle(next_moves)
-    return next_moves
-
 
 def custom_score(game, player):
     my_moves = min(4, len(game.get_legal_moves(player)))
